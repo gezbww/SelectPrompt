@@ -8,7 +8,7 @@ from dassl.utils import collect_env_info, set_random_seed, setup_logger
 
 import datasets.oxford_pets
 import datasets.oxford_flowers
-i
+
 import datasets.dtd
 import datasets.eurosat
 
@@ -20,7 +20,7 @@ import datasets.food101n
 
 
 
-import trainers.SelectPrompt
+import trainers.selectprompt
 
 
 def print_args(args, cfg):

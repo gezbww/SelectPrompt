@@ -19,7 +19,7 @@
  for NOISE_TYPE in "${NOISE_TYPES[@]}"; do
    for NOISE_RATE in "${NOISE_RATES[@]}"; do
      echo "============================================================"
-     echo "Running LightNLPrompt on ${DATASET}"
+     echo "Running SelectPrompt on ${DATASET}"
      echo "Noise type: ${NOISE_TYPE}"
      echo "Noise rate: ${NOISE_RATE}"
      echo "Shots: ${SHOTS}"
