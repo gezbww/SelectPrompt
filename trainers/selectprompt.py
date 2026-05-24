@@ -303,7 +303,7 @@ class VisualTokenSelector(nn.Module):
         evidence = torch.einsum("bn,bnd->bd", mask / denom, patch_tokens)
         evidence = F.normalize(evidence.float(), dim=-1)
 
-        # Diagnostics/losses.
+
         selected_ratio = torch.tensor(k / float(num_tokens), device=patch_tokens.device, dtype=torch.float32)
         budget_loss = (selected_ratio - self.keep_ratio) ** 2
         prob = torch.softmax(scores, dim=1).clamp_min(1e-8)
@@ -332,7 +332,7 @@ class ResidualTokenLogitGate(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, 1),
         )
-        # Start from a useful but still safe residual branch.
+
         nn.init.constant_(self.net[-1].bias, -0.2)
         nn.init.zeros_(self.net[-1].weight)
 
@@ -437,13 +437,13 @@ class CustomCLIP(nn.Module):
             required = ["v_proj", "c_proj", "positional_embedding"]
             if all(hasattr(attnpool, name) for name in required):
                 self.rn_use_pretrained_attnpool_proj = True
-                print("RN spatial tokens: using pretrained attnpool v_proj + c_proj")
+
             elif hasattr(attnpool, "c_proj"):
-                # Fallback for unusual CLIP forks.
+
                 in_dim = attnpool.c_proj.in_features
                 out_dim = attnpool.c_proj.out_features
                 self.rn_token_proj = RNSpatialTokenProjector(in_dim, out_dim)
-                print("RN spatial tokens: using fallback trainable linear projector")
+
             else:
                 raise NotImplementedError(
                     "RN visual encoder has attnpool, but no usable projection layers "
@@ -497,8 +497,7 @@ class CustomCLIP(nn.Module):
             if pos.shape[0] == seq.shape[1]:
                 seq = seq + pos.unsqueeze(0)
             else:
-                # This should not happen for normal RN50 with 224x224 input.
-                # Keep running instead of crashing if a custom resolution is used.
+
                 print(
                     f"Warning: RN attnpool positional length {pos.shape[0]} "
                     f"does not match token length {seq.shape[1]}; skip positional add."
@@ -681,7 +680,7 @@ class SelectPrompt(TrainerX):
         cfg = self.cfg.TRAINER.SelectPROMPT
         loss = torch.tensor(0.0, device=next(self.model.parameters()).device)
         loss = loss + float(cfg.BUDGET_LOSS_WEIGHT) * aux.get("budget_loss", 0.0)
-        # Small negative entropy term: maximize selector entropy a little, avoids early collapse.
+
         loss = loss - float(cfg.SELECTION_ENTROPY_WEIGHT) * aux.get("selection_entropy", 0.0)
         return loss
 
@@ -756,7 +755,7 @@ class SelectPrompt(TrainerX):
             state_dict = checkpoint["state_dict"]
             load_epoch = checkpoint.get("epoch", -1)
 
-            # Ignore fixed token vectors; they depend on current class names.
+
             for key in list(state_dict.keys()):
                 if key.endswith("token_prefix") or key.endswith("token_suffix"):
                     del state_dict[key]
@@ -865,8 +864,7 @@ class SelectPrompt(TrainerX):
 
     def _run_ot_pseudolabeling(self, budget, reg_feat, reg_lab, pmode, reg_e):
         self.model.set_epoch(self.epoch)
-        # Use the stable base prompt logits for PromptOT splitting. Otherwise a weak
-        # early selector can corrupt clean/noisy partitioning.
+
         self.model.set_force_base_only(True)
         try:
             with torch.no_grad():
